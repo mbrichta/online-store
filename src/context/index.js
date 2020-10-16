@@ -7,21 +7,27 @@ function ContextProvider({ children }) {
     const [photos, setPhotos] = useState([])
     const [cartItems, setCartItems] = useState([])
 
-    const url = 'https://raw.githubusercontent.com/bobziroll/scrimba-react-bootcamp-images/master/images.json'
+    const urlOne = 'https://raw.githubusercontent.com/bobziroll/scrimba-react-bootcamp-images/master/images.json'
+    const urlTwo = 'https://jsonplaceholder.typicode.com/posts'
 
-    useEffect(() => {
-        fetch(url).then(res => res.json())
-            .then(data => {
-                const newData = data.map(item => (
-                    item = {
-                        ...item,
-                        title: "Photo Title " + item.id,
-                        description: "Consectetur adipiscing elit. Praesent in nibh sollicitudin.",
-                        price: Math.floor(Math.random() * 15) + 1
-                    }
-                ))
-                setPhotos(newData)
-            })
+    useEffect(async () => {
+        const [promisePhotos, promisePosts] = await Promise.all([
+            fetch(urlOne), fetch(urlTwo)
+        ])
+
+        const gitHubPhotos = await promisePhotos.json()
+        const jsonPosts = await promisePosts.json()
+
+        const processedData = gitHubPhotos.map((photo, i) => (
+            photo = {
+                ...photo,
+                title: jsonPosts[i].title,
+                description: jsonPosts[i].body,
+                price: Math.floor(Math.random() * 15) + 1
+            }
+        ))
+
+        setPhotos(processedData)
     }, [])
 
     const toggleFavorite = (id) => {
